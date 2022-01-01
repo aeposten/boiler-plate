@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_31_182004) do
+ActiveRecord::Schema.define(version: 2022_01_01_214043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,17 +43,66 @@ ActiveRecord::Schema.define(version: 2021_12_31_182004) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "children", force: :cascade do |t|
+    t.string "first_name"
+    t.string "image"
+    t.integer "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "host_id"
+    t.bigint "child_id"
+    t.string "name"
+    t.string "location"
+    t.string "map"
+    t.string "description"
+    t.datetime "date", precision: 6
+    t.datetime "start_time", precision: 6
+    t.datetime "end_time", precision: 6
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_events_on_child_id"
+    t.index ["host_id"], name: "index_events_on_host_id"
+  end
+
+  create_table "invitations", force: :cascade do |t|
+    t.bigint "invitee_id"
+    t.bigint "event_id"
+    t.bigint "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_invitations_on_event_id"
+    t.index ["invitee_id"], name: "index_invitations_on_invitee_id"
+    t.index ["user_id"], name: "index_invitations_on_user_id"
+  end
+
+  create_table "invitees", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.string "email"
+    t.string "image"
+    t.bigint "child_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_invitees_on_child_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
     t.string "username"
     t.string "email", null: false
     t.string "password_digest"
-    t.boolean "admin", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "invitations", "events"
+  add_foreign_key "invitations", "invitees"
+  add_foreign_key "invitations", "users"
+  add_foreign_key "invitees", "children"
 end
